@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 // import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
+import axios from 'axios';
 // import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
@@ -9,9 +10,9 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   // const { login } = useAuth();
-  const {login} = {};
+  // const { login } = {};
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -19,11 +20,26 @@ const Login = () => {
     setError('');
     setLoading(true);
 
+    const userInfo = {username: email, password}
+
     try {
-      await login(email, password);
-      navigate('/');
+      axios.post('http://localhost:3000/api/users/login', userInfo).then(res => {
+        console.log("User registered:", res.data.user);
+
+        if (res.data.success) {
+          localStorage.setItem("token", res.data.token);
+            window.dispatchEvent(new Event("authChange"));
+          navigate('/')
+          // Swal.fire({
+          //     icon: "success",
+          //     title: "Your Book Add Successfull!",
+          //     showConfirmButton: false,
+          //     timer: 1600
+          // });
+        }
+      })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -68,7 +84,7 @@ const Login = () => {
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                   Password

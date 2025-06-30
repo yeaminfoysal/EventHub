@@ -30,6 +30,7 @@ const Register = () => {
                 if (res.data.success) {
                     localStorage.setItem("token", res.data.token);
                     navigate('/')
+                    window.dispatchEvent(new Event("authChange"));
                     // Swal.fire({
                     //     icon: "success",
                     //     title: "Your Book Add Successfull!",

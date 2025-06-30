@@ -9,13 +9,17 @@ const Navbar = () => {
   // const location = useLocation();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-    const user = useAuthUser();
+  const user = useAuthUser();
+  console.log(user);
 
   const isActive = (path) => location.pathname === path;
 
   const handleLogout = () => {
-    // logout();
+    localStorage.removeItem("token");
     setShowDropdown(false);
+
+    // Notify all listeners
+    window.dispatchEvent(new Event("authChange"));
   };
 
   const navLinks = [
