@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 // import { Link, useLocation } from 'react-router-dom';
 import { Calendar, User, LogOut, Menu, X } from 'lucide-react';
 import { Link } from 'react-router';
+import useAuthUser from '../hooks/useAuthUser';
 // import { useAuth } from '../contexts/AuthContext';
 
 const Navbar = () => {
-  // const { user, logout } = useAuth();
   // const location = useLocation();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const user = null
+    const user = useAuthUser();
 
   const isActive = (path) => location.pathname === path;
 

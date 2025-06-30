@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { UserPlus, User, Mail, Lock, AlertCircle } from 'lucide-react';
-// import { useAuth } from '../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router';
+import axios from 'axios';
 
 const Register = () => {
     const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
+    const [username, setusername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // const { register } = useAuth();
-    const {register} = {};
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -19,9 +17,27 @@ const Register = () => {
         setError('');
         setLoading(true);
 
+        const user = {
+            name,
+            username,
+            password
+        }
+
         try {
-            await register(name, email, password);
-            navigate('/');
+            axios.post('http://localhost:3000/api/users/register', user).then(res => {
+                console.log("User registered:", res.data.user);
+
+                if (res.data.success) {
+                    localStorage.setItem("token", res.data.token);
+                    navigate('/')
+                    // Swal.fire({
+                    //     icon: "success",
+                    //     title: "Your Book Add Successfull!",
+                    //     showConfirmButton: false,
+                    //     timer: 1600
+                    // });
+                }
+            })
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Registration failed');
         } finally {
@@ -70,20 +86,20 @@ const Register = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                                    Email Address
+                                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                                    username Address
                                 </label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                                     <input
-                                        id="email"
-                                        name="email"
-                                        type="email"
+                                        id="username"
+                                        name="username"
+                                        type="username"
                                         required
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        value={username}
+                                        onChange={(e) => setusername(e.target.value)}
                                         className="appearance-none rounded-lg relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10"
-                                        placeholder="Enter your email"
+                                        placeholder="Enter your username"
                                     />
                                 </div>
                             </div>
