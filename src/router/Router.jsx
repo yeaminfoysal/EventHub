@@ -6,6 +6,8 @@ import Home from "../Pages/Home";
 import Events from "../Pages/Events";
 import Register from "../Pages/Register";
 import Login from "../Pages/Login";
+import PrivateRouter from "../components/PrivateRouter";
+import AddEvent from "../Pages/AddEvent";
 
 
 export const Router = createBrowserRouter([
@@ -20,12 +22,16 @@ export const Router = createBrowserRouter([
             {
                 path: '/events',
                 // loader: ({ params }) => fetch(`https://assignment-11-server-zeta-orcin.vercel.app/books/${params.id}`),
-                element: <Events></Events>
+                element: <PrivateRouter>
+                    <Events></Events>
+                </PrivateRouter>
             },
             {
                 path: '/add-event',
                 // loader: ({ params }) => fetch(`https://assignment-11-server-zeta-orcin.vercel.app/books/${params.id}`),
-                element: <Events></Events>
+                element: <PrivateRouter>
+                    <AddEvent></AddEvent>
+                </PrivateRouter>
             },
             {
                 path: '/my-events',
@@ -35,12 +41,12 @@ export const Router = createBrowserRouter([
             {
                 path: '/register',
                 // loader: ({ params }) => fetch(`https://assignment-11-server-zeta-orcin.vercel.app/books/${params.id}`),
-                element: <Register/>
+                element: <Register />
             },
             {
                 path: '/login',
                 // loader: ({ params }) => fetch(`https://assignment-11-server-zeta-orcin.vercel.app/books/${params.id}`),
-                element: <Login/>
+                element: <Login />
             },
             // {
             //     path: '/view-details/:id',

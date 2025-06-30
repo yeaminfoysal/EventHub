@@ -30,12 +30,6 @@ const Login = () => {
           localStorage.setItem("token", res.data.token);
             window.dispatchEvent(new Event("authChange"));
           navigate('/')
-          // Swal.fire({
-          //     icon: "success",
-          //     title: "Your Book Add Successfull!",
-          //     showConfirmButton: false,
-          //     timer: 1600
-          // });
         }
       })
     } catch (err) {
