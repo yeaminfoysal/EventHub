@@ -28,10 +28,13 @@ const AddEvent = () => {
     console.log(eventData);
     try {
       axios.post('http://localhost:3000/api/events', eventData).then(res => {
-        console.log("User registered:", res.data.user);
 
         if (res.data.success) {
-          console.log(res.data.success);
+          setTitle('');
+          setDate('');
+          setTime('');
+          setLocation('');
+          setDescription('');
         }
       })
     } catch (error) {
