@@ -8,6 +8,7 @@ import Register from "../Pages/Register";
 import Login from "../Pages/Login";
 import PrivateRouter from "../components/PrivateRouter";
 import AddEvent from "../Pages/AddEvent";
+import MyEvents from "../Pages/MyEvents";
 
 
 export const Router = createBrowserRouter([
@@ -36,7 +37,9 @@ export const Router = createBrowserRouter([
             {
                 path: '/my-events',
                 // loader: ({ params }) => fetch(`https://assignment-11-server-zeta-orcin.vercel.app/books/${params.id}`),
-                element: <Events></Events>
+                element: <PrivateRouter>
+                    <MyEvents/>
+                </PrivateRouter>
             },
             {
                 path: '/register',

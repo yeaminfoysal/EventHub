@@ -24,7 +24,7 @@ const AddEvent = () => {
 
     const dateTime = `${date}T${time}`
 
-    const eventData = { title, description, dateTime, location, creator: user?.name }
+    const eventData = { title, description, dateTime, location, creator: user?.name, username:user?.username }
     console.log(eventData);
     try {
       axios.post('http://localhost:3000/api/events', eventData).then(res => {
