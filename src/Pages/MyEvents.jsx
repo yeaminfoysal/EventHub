@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, MapPin, User, Users, Edit, Trash2, AlertCircle } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  User,
+  Users,
+  Edit,
+  Trash2,
+  AlertCircle,
+} from 'lucide-react';
 import useAuthUser from '../hooks/useAuthUser';
+import axios from 'axios';
 
 const MyEvents = () => {
   const [events, setEvents] = useState([]);
@@ -8,75 +18,90 @@ const MyEvents = () => {
   const [error, setError] = useState('');
   const [editingEvent, setEditingEvent] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
-  const user = useAuthUser()
+  const user = useAuthUser();
 
-  useEffect(() => {
+  const fetchMyEvents = async () => {
     if (!user?.username) return;
 
-    const fetchMyEvents = async () => {
-      try {
-        const response = await fetch(`http://localhost:3000/api/events/my/${user.username}`);
-        const data = await response.json();
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/events/my/${user.username}`
+      );
+      const data = await response.json();
 
-        if (data.success) {
-          setEvents(data.data); // or just data depending on your API response
-        } else {
-          setError('Failed to fetch your events');
-        }
-      } catch (error) {
-        setError('Error fetching events');
-        console.error(error);
-      } finally {
-        setLoading(false);
+      if (data.success) {
+        setEvents(data.data);
+      } else {
+        setError('Failed to fetch your events');
       }
-    };
+    } catch (error) {
+      setError('Error fetching events');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchMyEvents();
   }, [user?.username]);
 
-  const handleUpdate = async (eventData) => {
+  const handleUpdate = async (updatedEvent) => {
     if (!editingEvent) return;
+    console.log("updated", updatedEvent);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3001/api/events/${editingEvent.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(eventData)
-      });
+      await axios.patch(`http://localhost:3000/api/events/${editingEvent._id}`, updatedEvent).then(res => {
+        console.log(res.data);
+        if (res.data.success) {
+          fetchMyEvents();
+          setEditingEvent(null);
+        } else {
+          alert('Failed to update event');
+        }
+      })
 
-      if (response.ok) {
-        // await fetchMyEvents();
-        setEditingEvent(null);
-      } else {
-        alert('Failed to update event');
-      }
+      // const response = await fetch(
+      //   `http://localhost:3001/api/events/${editingEvent._id}`,
+      //   {
+      //     method: 'PUT',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //     body: JSON.stringify(updatedEvent),
+      //   }
+      // );
+
+
     } catch (error) {
-      alert('Error updating event', error);
+      alert('Error updating event');
+      console.error(error);
     }
   };
 
   const handleDelete = async (eventId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3001/api/events/${eventId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
+      const response = await fetch(
+        `http://localhost:3001/api/events/${eventId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
 
       if (response.ok) {
-        // await fetchMyEvents();
+        await fetchMyEvents();
         setShowDeleteConfirm(null);
       } else {
         alert('Failed to delete event');
       }
     } catch (error) {
-      alert('Error deleting event', error);
+      alert('Error deleting event');
+      console.error(error);
     }
   };
 
@@ -105,15 +130,24 @@ const MyEvents = () => {
         {events.length === 0 ? (
           <div className="text-center py-12">
             <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No events created yet</h3>
-            <p className="text-gray-600">Create your first event to get started</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              No events created yet
+            </h3>
+            <p className="text-gray-600">
+              Create your first event to get started
+            </p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {events.map((event) => (
-              <div key={event.id} className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow">
+              <div
+                key={event.id}
+                className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow"
+              >
                 <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{event.title}</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    {event.title}
+                  </h3>
 
                   <div className="flex items-center text-gray-600 mb-2">
                     <User className="h-4 w-4 mr-2" />
@@ -122,12 +156,19 @@ const MyEvents = () => {
 
                   <div className="flex items-center text-gray-600 mb-2">
                     <Calendar className="h-4 w-4 mr-2" />
-                    <span className="text-sm">{new Date(event.dateTime).toLocaleDateString()}</span>
+                    <span className="text-sm">
+                      {new Date(event.dateTime).toLocaleDateString()}
+                    </span>
                   </div>
 
                   <div className="flex items-center text-gray-600 mb-2">
                     <Clock className="h-4 w-4 mr-2" />
-                    <span className="text-sm">{event.dateTime}</span>
+                    <span className="text-sm">
+                      {new Date(event.dateTime).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
                   </div>
 
                   <div className="flex items-center text-gray-600 mb-3">
@@ -135,12 +176,16 @@ const MyEvents = () => {
                     <span className="text-sm">{event.location}</span>
                   </div>
 
-                  <p className="text-gray-700 text-sm mb-4 line-clamp-3">{event.description}</p>
+                  <p className="text-gray-700 text-sm mb-4 line-clamp-3">
+                    {event.description}
+                  </p>
 
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center text-gray-600">
                       <Users className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{event.attendeeCount} attendees</span>
+                      <span className="text-sm">
+                        {event.attendeeCount} attendees
+                      </span>
                     </div>
                   </div>
 
@@ -174,8 +219,8 @@ const MyEvents = () => {
               <h2 className="text-xl font-bold mb-4">Update Event</h2>
               <UpdateEventForm
                 event={editingEvent}
-                onUpdate={handleUpdate}
                 onCancel={() => setEditingEvent(null)}
+                onUpdate={handleUpdate}
               />
             </div>
           </div>
@@ -187,10 +232,13 @@ const MyEvents = () => {
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
               <div className="flex items-center space-x-3 mb-4">
                 <AlertCircle className="h-8 w-8 text-red-600" />
-                <h2 className="text-xl font-bold text-gray-900">Confirm Delete</h2>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Confirm Delete
+                </h2>
               </div>
               <p className="text-gray-600 mb-6">
-                Are you sure you want to delete this event? This action cannot be undone.
+                Are you sure you want to delete this event? This action cannot
+                be undone.
               </p>
               <div className="flex space-x-4">
                 <button
@@ -214,16 +262,25 @@ const MyEvents = () => {
   );
 };
 
+// ---------- Update Event Form -------------
 const UpdateEventForm = ({ event, onUpdate, onCancel }) => {
+  const initialDate = new Date(event.dateTime);
   const [title, setTitle] = useState(event.title);
-  const [date, setDate] = useState(event.date);
-  const [time, setTime] = useState(event.time);
+  const [date, setDate] = useState(initialDate.toISOString().split('T')[0]);
+  const [time, setTime] = useState(initialDate.toTimeString().slice(0, 5));
   const [location, setLocation] = useState(event.location);
   const [description, setDescription] = useState(event.description);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onUpdate({ title, date, time, location, description });
+
+    const dateTime = `${date}T${time}`;;
+    onUpdate({
+      title,
+      dateTime,
+      location,
+      description,
+    });
   };
 
   return (
@@ -236,7 +293,7 @@ const UpdateEventForm = ({ event, onUpdate, onCancel }) => {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
           required
         />
       </div>
@@ -249,7 +306,7 @@ const UpdateEventForm = ({ event, onUpdate, onCancel }) => {
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
           required
         />
       </div>
@@ -262,7 +319,7 @@ const UpdateEventForm = ({ event, onUpdate, onCancel }) => {
           type="time"
           value={time}
           onChange={(e) => setTime(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
           required
         />
       </div>
@@ -275,7 +332,7 @@ const UpdateEventForm = ({ event, onUpdate, onCancel }) => {
           type="text"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
           required
         />
       </div>
@@ -288,7 +345,7 @@ const UpdateEventForm = ({ event, onUpdate, onCancel }) => {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
           required
         />
       </div>
@@ -297,13 +354,13 @@ const UpdateEventForm = ({ event, onUpdate, onCancel }) => {
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Update
         </button>
