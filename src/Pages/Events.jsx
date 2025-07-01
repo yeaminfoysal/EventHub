@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, User, Users, Search, Filter } from 'lucide-react';
 import axios from 'axios';
+import { motion } from 'framer-motion';
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -9,6 +10,7 @@ const Events = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('all');
   const [error, setError] = useState('');
+  const [joinedEventIds, setJoinedEventIds] = useState([]);
 
   useEffect(() => {
     fetchEvents();
@@ -18,12 +20,18 @@ const Events = () => {
     filterEvents();
   }, [events, searchTerm, dateFilter]);
 
+  useEffect(() => {
+    const stored = localStorage.getItem('joinedEventIds');
+    if (stored) {
+      setJoinedEventIds(JSON.parse(stored));
+    }
+  }, []);
+
   const fetchEvents = async () => {
     try {
       const res = await axios.get('http://localhost:3000/api/events');
       setEvents(res.data.data);
     } catch (error) {
-      console.error("Error fetching events:", error);
       setError("Error fetching events");
     } finally {
       setLoading(false);
@@ -84,33 +92,41 @@ const Events = () => {
     try {
       const res = await axios.patch(`http://localhost:3000/api/events/join/${eventId}`);
       if (res.data.success) {
-        await fetchEvents(); // Refresh
+        const updatedIds = [...joinedEventIds, eventId];
+        setJoinedEventIds(updatedIds);
+        localStorage.setItem('joinedEventIds', JSON.stringify(updatedIds));
+        await fetchEvents();
       } else {
         alert(res.data.message || 'Failed to join event');
       }
     } catch (error) {
-      alert('Error joining event', error);
+      alert('Error joining event');
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-blue-50 to-purple-100">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+      className="min-h-screen bg-gradient-to-br from-indigo-100 via-blue-50 to-purple-100 py-8"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">All Events</h1>
-          <p className="text-gray-600">Discover and join amazing events</p>
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-extrabold text-gray-800 mb-2">Explore Upcoming Events</h1>
+          <p className="text-gray-600 text-lg">Join the journey, one event at a time!</p>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-md p-6 mb-10">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
@@ -153,9 +169,16 @@ const Events = () => {
             <p className="text-gray-600">Try adjusting your search or filter criteria</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredEvents.map((event) => (
-              <div key={event._id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredEvents.map((event, index) => (
+              <motion.div
+                key={event._id}
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                whileHover={{ scale: 1.03 }}
+                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 backdrop-blur-md bg-opacity-70"
+              >
                 <div className="p-6">
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">{event.title}</h3>
 
@@ -181,7 +204,7 @@ const Events = () => {
 
                   <p className="text-gray-700 text-sm mb-4 line-clamp-3">{event.description}</p>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-4">
                     <div className="flex items-center text-gray-600">
                       <Users className="h-4 w-4 mr-1" />
                       <span className="text-sm">{event.attendeeCount || 0} attendees</span>
@@ -189,18 +212,22 @@ const Events = () => {
 
                     <button
                       onClick={() => joinEvent(event._id)}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                      disabled={joinedEventIds.includes(event._id)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all 
+                        ${joinedEventIds.includes(event._id)
+                          ? 'bg-gray-400 text-white cursor-not-allowed'
+                          : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white'}`}
                     >
-                      Join Event
+                      {joinedEventIds.includes(event._id) ? 'Joined' : 'Join Event'}
                     </button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

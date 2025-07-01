@@ -36,7 +36,6 @@ const AddEvent = () => {
     }
 
     const eventData = { title, description, dateTime, location, creator: user?.name, username: user?.username }
-    console.log(eventData);
     try {
       axios.post('http://localhost:3000/api/events', eventData).then(res => {
 
@@ -61,7 +60,7 @@ const AddEvent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-blue-50 to-purple-100 py-8">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-sm">
           <div className="p-6 border-b border-gray-200">

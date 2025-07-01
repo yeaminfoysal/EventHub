@@ -20,21 +20,26 @@ const Login = () => {
     setError('');
     setLoading(true);
 
-    const userInfo = {username: email, password}
+    const userInfo = { username: email, password }
 
     try {
-      axios.post('http://localhost:3000/api/users/login', userInfo).then(res => {
-        console.log("User registered:", res.data.user);
+      const res = await axios.post('http://localhost:3000/api/users/login', userInfo);
 
-        if (res.data.success) {
-          localStorage.setItem("token", res.data.token);
-            window.dispatchEvent(new Event("authChange"));
-          navigate('/')
-        }
-      })
+      if (res.data.success) {
+        localStorage.setItem("token", res.data.token);
+        window.dispatchEvent(new Event("authChange"));
+        navigate('/');
+      } else {
+        setError(res.data.message || 'Login failed');
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
-    } finally {
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message); // Show backend error
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
+    }
+    finally {
       setLoading(false);
     }
   };

@@ -12,6 +12,7 @@ import {
 import useAuthUser from '../hooks/useAuthUser';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { motion } from 'framer-motion';
 
 const MyEvents = () => {
   const [events, setEvents] = useState([]);
@@ -36,8 +37,7 @@ const MyEvents = () => {
         setError('Failed to fetch your events');
       }
     } catch (error) {
-      setError('Error fetching events');
-      console.error(error);
+      setError('Error fetching events', error);
     } finally {
       setLoading(false);
     }
@@ -63,7 +63,6 @@ const MyEvents = () => {
 
     try {
       await axios.patch(`http://localhost:3000/api/events/${editingEvent._id}`, updatedEvent).then(res => {
-        console.log(res.data);
         if (res.data.success) {
           fetchMyEvents();
           setEditingEvent(null);
@@ -77,8 +76,7 @@ const MyEvents = () => {
         }
       })
     } catch (error) {
-      alert('Error updating event');
-      console.error(error);
+      alert('Error updating event', error);
     }
   };
 
@@ -99,8 +97,7 @@ const MyEvents = () => {
       })
 
     } catch (error) {
-      alert('Error deleting event');
-      console.error(error);
+      alert('Error deleting event', error);
     }
   };
 
@@ -113,7 +110,12 @@ const MyEvents = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+      className="min-h-screen bg-gradient-to-br from-indigo-100 via-blue-50 to-purple-100 py-10 px-4"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">My Events</h1>
@@ -138,10 +140,14 @@ const MyEvents = () => {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map((event) => (
-              <div
-                key={event.id}
-                className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow"
+            {events.map((event, index) => (
+              <motion.div
+                key={event._id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ scale: 1.03 }}
+                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6"
               >
                 <div className="p-6">
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -206,7 +212,7 @@ const MyEvents = () => {
                     </button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
@@ -257,7 +263,7 @@ const MyEvents = () => {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

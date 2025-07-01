@@ -27,7 +27,6 @@ const Register = () => {
 
         try {
             axios.post(`http://localhost:3000/api/users/register`, user).then(res => {
-                console.log("User registered:", res.data.user);
 
                 if (res.data.success) {
                     localStorage.setItem("token", res.data.token);
