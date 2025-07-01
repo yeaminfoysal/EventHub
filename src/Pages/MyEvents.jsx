@@ -60,20 +60,6 @@ const MyEvents = () => {
           alert('Failed to update event');
         }
       })
-
-      // const response = await fetch(
-      //   `http://localhost:3001/api/events/${editingEvent._id}`,
-      //   {
-      //     method: 'PUT',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //       Authorization: `Bearer ${token}`,
-      //     },
-      //     body: JSON.stringify(updatedEvent),
-      //   }
-      // );
-
-
     } catch (error) {
       alert('Error updating event');
       console.error(error);
@@ -82,23 +68,15 @@ const MyEvents = () => {
 
   const handleDelete = async (eventId) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(
-        `http://localhost:3001/api/events/${eventId}`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      await axios.delete(`http://localhost:3000/api/events/${eventId}`).then(res => {
+        if (res?.data?.success) {
+          fetchMyEvents();
+          setShowDeleteConfirm(null);
+        } else {
+          alert('Failed to delete event');
         }
-      );
+      })
 
-      if (response.ok) {
-        await fetchMyEvents();
-        setShowDeleteConfirm(null);
-      } else {
-        alert('Failed to delete event');
-      }
     } catch (error) {
       alert('Error deleting event');
       console.error(error);
@@ -192,15 +170,15 @@ const MyEvents = () => {
                   <div className="flex space-x-2">
                     <button
                       onClick={() => setEditingEvent(event)}
-                      className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center justify-center space-x-1"
+                      className="cursor-pointer  flex-1 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center justify-center space-x-1"
                     >
                       <Edit className="h-4 w-4" />
                       <span>Update</span>
                     </button>
 
                     <button
-                      onClick={() => setShowDeleteConfirm(event.id)}
-                      className="flex-1 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center justify-center space-x-1"
+                      onClick={() => setShowDeleteConfirm(event._id)}
+                      className="cursor-pointer flex-1 bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center justify-center space-x-1"
                     >
                       <Trash2 className="h-4 w-4" />
                       <span>Delete</span>
@@ -228,7 +206,7 @@ const MyEvents = () => {
 
         {/* Delete Confirmation Modal */}
         {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-[#00000072] bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
               <div className="flex items-center space-x-3 mb-4">
                 <AlertCircle className="h-8 w-8 text-red-600" />
