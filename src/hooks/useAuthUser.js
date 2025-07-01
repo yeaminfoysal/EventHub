@@ -18,7 +18,11 @@ export default function useAuthUser() {
     if (token) {
       const userData = parseToken(token);
       if (userData?.username && userData?.name) {
-        setUser({ username: userData.username, name: userData.name });
+        setUser({
+          username: userData.username,
+          name: userData.name,
+          photoUrl: userData.photoUrl || null, // ✅ Add photoUrl (optional fallback)
+        });
         return;
       }
     }

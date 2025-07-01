@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import useAuthUser from '../hooks/useAuthUser';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const MyEvents = () => {
   const [events, setEvents] = useState([]);
@@ -48,7 +49,17 @@ const MyEvents = () => {
 
   const handleUpdate = async (updatedEvent) => {
     if (!editingEvent) return;
-    console.log("updated", updatedEvent);
+
+    const today = new Date().toISOString().split('T')[0];
+
+    if (today > updatedEvent.dateTime) {
+      setLoading(false);
+      return Swal.fire({
+        icon: "error",
+        title: "Invalied Date",
+        text: "Something went wrong!",
+      });
+    }
 
     try {
       await axios.patch(`http://localhost:3000/api/events/${editingEvent._id}`, updatedEvent).then(res => {
@@ -56,6 +67,11 @@ const MyEvents = () => {
         if (res.data.success) {
           fetchMyEvents();
           setEditingEvent(null);
+          Swal.fire({
+            title: "Event updated successfully!",
+            icon: "success",
+            draggable: true
+          });
         } else {
           alert('Failed to update event');
         }
@@ -72,6 +88,11 @@ const MyEvents = () => {
         if (res?.data?.success) {
           fetchMyEvents();
           setShowDeleteConfirm(null);
+          Swal.fire({
+            title: "Event deleted successfully!",
+            icon: "success",
+            draggable: true
+          });
         } else {
           alert('Failed to delete event');
         }

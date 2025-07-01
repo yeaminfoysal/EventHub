@@ -3,6 +3,7 @@ import { Plus, Calendar, Clock, MapPin, FileText, User } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import useAuthUser from '../hooks/useAuthUser';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const AddEvent = () => {
   const [title, setTitle] = useState('');
@@ -13,7 +14,6 @@ const AddEvent = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // const { user } = useAuth();
   const user = useAuthUser();
   const navigate = useNavigate();
 
@@ -24,12 +24,28 @@ const AddEvent = () => {
 
     const dateTime = `${date}T${time}`
 
-    const eventData = { title, description, dateTime, location, creator: user?.name, username:user?.username }
+    const today = new Date().toISOString().split('T')[0];
+
+    if (today > date) {
+      setLoading(false);
+      return Swal.fire({
+        icon: "error",
+        title: "Invalied Date",
+        text: "Something went wrong!",
+      });
+    }
+
+    const eventData = { title, description, dateTime, location, creator: user?.name, username: user?.username }
     console.log(eventData);
     try {
       axios.post('http://localhost:3000/api/events', eventData).then(res => {
 
         if (res.data.success) {
+          Swal.fire({
+            title: "Event created successfully!",
+            icon: "success",
+            draggable: true
+          });
           setTitle('');
           setDate('');
           setTime('');

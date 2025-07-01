@@ -5,6 +5,7 @@ import axios from 'axios';
 
 const Register = () => {
     const [name, setName] = useState('');
+    const [photoUrl, setPhotoUrl] = useState('');
     const [username, setusername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -19,12 +20,13 @@ const Register = () => {
 
         const user = {
             name,
+            photoUrl,
             username,
             password
         }
 
         try {
-            axios.post('http://localhost:3000/api/users/register', user).then(res => {
+            axios.post(`http://localhost:3000/api/users/register`, user).then(res => {
                 console.log("User registered:", res.data.user);
 
                 if (res.data.success) {
@@ -82,6 +84,24 @@ const Register = () => {
                                         onChange={(e) => setName(e.target.value)}
                                         className="appearance-none rounded-lg relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10"
                                         placeholder="Enter your full name"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                                    Photo URL
+                                </label>
+                                <div className="relative">
+                                    <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                    <input
+                                        id="photo"
+                                        name="photo"
+                                        type="text"
+                                        required
+                                        value={photoUrl}
+                                        onChange={(e) => setPhotoUrl(e.target.value)}
+                                        className="appearance-none rounded-lg relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10"
+                                        placeholder="Enter your photo url"
                                     />
                                 </div>
                             </div>
