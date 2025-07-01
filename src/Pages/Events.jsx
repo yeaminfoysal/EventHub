@@ -29,7 +29,7 @@ const Events = () => {
 
   const fetchEvents = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/events');
+      const res = await axios.get('https://eventhub-server.vercel.app/api/events');
       setEvents(res.data.data);
     } catch (error) {
       setError("Error fetching events");
@@ -90,7 +90,7 @@ const Events = () => {
 
   const joinEvent = async (eventId) => {
     try {
-      const res = await axios.patch(`http://localhost:3000/api/events/join/${eventId}`);
+      const res = await axios.patch(`https://eventhub-server.vercel.app/api/events/join/${eventId}`);
       if (res.data.success) {
         const updatedIds = [...joinedEventIds, eventId];
         setJoinedEventIds(updatedIds);

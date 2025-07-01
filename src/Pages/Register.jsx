@@ -26,7 +26,7 @@ const Register = () => {
         }
 
         try {
-            axios.post(`http://localhost:3000/api/users/register`, user).then(res => {
+            axios.post(`https://eventhub-server.vercel.app/api/users/register`, user).then(res => {
 
                 if (res.data.success) {
                     localStorage.setItem("token", res.data.token);

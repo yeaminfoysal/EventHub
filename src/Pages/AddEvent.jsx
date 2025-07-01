@@ -37,7 +37,7 @@ const AddEvent = () => {
 
     const eventData = { title, description, dateTime, location, creator: user?.name, username: user?.username }
     try {
-      axios.post('http://localhost:3000/api/events', eventData).then(res => {
+      axios.post('https://eventhub-server.vercel.app/api/events', eventData).then(res => {
 
         if (res.data.success) {
           Swal.fire({

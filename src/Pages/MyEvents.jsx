@@ -27,7 +27,7 @@ const MyEvents = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/events/my/${user.username}`
+        `https://eventhub-server.vercel.app/api/events/my/${user.username}`
       );
       const data = await response.json();
 
@@ -62,7 +62,7 @@ const MyEvents = () => {
     }
 
     try {
-      await axios.patch(`http://localhost:3000/api/events/${editingEvent._id}`, updatedEvent).then(res => {
+      await axios.patch(`https://eventhub-server.vercel.app/api/events/${editingEvent._id}`, updatedEvent).then(res => {
         if (res.data.success) {
           fetchMyEvents();
           setEditingEvent(null);
@@ -82,7 +82,7 @@ const MyEvents = () => {
 
   const handleDelete = async (eventId) => {
     try {
-      await axios.delete(`http://localhost:3000/api/events/${eventId}`).then(res => {
+      await axios.delete(`https://eventhub-server.vercel.app/api/events/${eventId}`).then(res => {
         if (res?.data?.success) {
           fetchMyEvents();
           setShowDeleteConfirm(null);

@@ -23,7 +23,7 @@ const Login = () => {
     const userInfo = { username: email, password }
 
     try {
-      const res = await axios.post('http://localhost:3000/api/users/login', userInfo);
+      const res = await axios.post('https://eventhub-server.vercel.app/api/users/login', userInfo);
 
       if (res.data.success) {
         localStorage.setItem("token", res.data.token);
